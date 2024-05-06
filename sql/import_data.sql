@@ -1,0 +1,1 @@
+COPY transactions FROM STDIN WITH CSV HEADER DELIMITER ',' NULL AS 'null';

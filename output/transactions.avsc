@@ -1,0 +1,91 @@
+{
+  "type" : "record",
+  "name" : "transactions",
+  "doc" : "Sqoop import of transactions",
+  "fields" : [ {
+    "name" : "time",
+    "type" : [ "null", "long" ],
+    "default" : null,
+    "columnName" : "time",
+    "sqlType" : "93"
+  }, {
+    "name" : "hour_of_day",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "hour_of_day",
+    "sqlType" : "4"
+  }, {
+    "name" : "sending_address",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "sending_address",
+    "sqlType" : "12"
+  }, {
+    "name" : "receiving_address",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "receiving_address",
+    "sqlType" : "12"
+  }, {
+    "name" : "amount",
+    "type" : [ "null", "double" ],
+    "default" : null,
+    "columnName" : "amount",
+    "sqlType" : "8"
+  }, {
+    "name" : "transaction_type",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "transaction_type",
+    "sqlType" : "12"
+  }, {
+    "name" : "location_region",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "location_region",
+    "sqlType" : "12"
+  }, {
+    "name" : "ip_prefix",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "ip_prefix",
+    "sqlType" : "12"
+  }, {
+    "name" : "login_frequency",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "login_frequency",
+    "sqlType" : "4"
+  }, {
+    "name" : "session_duration",
+    "type" : [ "null", "int" ],
+    "default" : null,
+    "columnName" : "session_duration",
+    "sqlType" : "4"
+  }, {
+    "name" : "purchase_pattern",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "purchase_pattern",
+    "sqlType" : "12"
+  }, {
+    "name" : "age_group",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "age_group",
+    "sqlType" : "12"
+  }, {
+    "name" : "risk_score",
+    "type" : [ "null", "double" ],
+    "default" : null,
+    "columnName" : "risk_score",
+    "sqlType" : "8"
+  }, {
+    "name" : "anomaly",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "columnName" : "anomaly",
+    "sqlType" : "12"
+  } ],
+  "tableName" : "transactions"
+}
