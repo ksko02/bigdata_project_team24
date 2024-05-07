@@ -1,0 +1,73 @@
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> SET hive.exec.dynamic.partition.mode = nonstrict;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> SET hive.exec.dynamic.partition = true;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> SET hive.enforce.bucketing = true;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Drop the databases if exists
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> DROP DATABASE IF EXISTS team24_projectdb CASCADE;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Create a database and access it
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> CREATE DATABASE team24_projectdb LOCATION "project/hive/warehouse";
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> USE team24_projectdb;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Create transactions table
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> CREATE EXTERNAL TABLE transactions STORED AS AVRO LOCATION 'project/warehouse/transactions' TBLPR OPERTIES ('avro.schema.url'='project/warehouse/avsc/transactions.avsc');
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Checking the content of table
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> SELECT * FROM transactions LIMIT 5;
++--------------------+---------------------------+---------------------------------------------+---------------------------------------------+----------------------+--------------------------------+-------------------------------+-------------------------+-------------------------------+--------------------------------+--------------------------------+-------------------------+--------------------------+-----------------------+
+| transactions.time  | transactions.hour_of_day  |        transactions.sending_address         |       transactions.receiving_address        | transactions.amount  | transactions.transaction_type  | transactions.location_region  | transactions.ip_prefix  | transactions.login_frequency  | transactions.session_duration  | transactions.purchase_pattern  | transactions.age_group  | transactions.risk_score  | transactions.anomaly  |
++--------------------+---------------------------+---------------------------------------------+---------------------------------------------+----------------------+--------------------------------+-------------------------------+-------------------------+-------------------------------+--------------------------------+--------------------------------+-------------------------+--------------------------+-----------------------+
+| 1649670447000      | 12                        | 0x9d32d0bf2c00f41ce7ca01b66e174cc4dcb0c1da  | 0x39f82e1c09bc6d7baccc1e79e5621ff812f50572  | 796.9492059264745    | transfer                       | Europe                        | 192.0                   | 3                             | 48                             | focused                        | established             | 18.75                    | low_risk              |
+| 1655223166000      | 19                        | 0xd6e251c23cbf52dbd472f079147873e655d8096f  | 0x51e8fbe24f124e0e30a614e14401b9bbfed5384c  | 0.01                 | purchase                       | South America                 | 172.0                   | 5                             | 61                             | focused                        | established             | 25.0                     | low_risk              |
+| 1642512419000      | 16                        | 0x2e0925b922fed01f6a85d213ae2718f54b8ca305  | 0x52c7911879f783d590af45bda0c0ef2b8536706f  | 778.197389885983     | purchase                       | Asia                          | 192.168                 | 3                             | 74                             | focused                        | established             | 31.25                    | low_risk              |
+| 1655274004000      | 9                         | 0x93efefc25fcaf31d7695f28018d7a11ece55457f  | 0x8ac3b7bd531b3a833032f07d4e47c7af6ea7bace  | 300.8383577068122    | transfer                       | South America                 | 172.0                   | 8                             | 111                            | high_value                     | veteran                 | 36.75                    | low_risk              |
+| 1645184130000      | 14                        | 0xad3b8de45d63f5cce28aef9a82cf30c397c6ceb9  | 0x6fdc047c2391615b3facd79b4588c7e9106e49f2  | 775.5693437525714    | sale                           | Africa                        | 172.16                  | 6                             | 100                            | high_value                     | veteran                 | 62.5                     | moderate_risk         |
++--------------------+---------------------------+---------------------------------------------+---------------------------------------------+----------------------+--------------------------------+-------------------------------+-------------------------+-------------------------------+--------------------------------+--------------------------------+-------------------------+--------------------------+-----------------------+
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Create external, partitioned and bucketing Hive table
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> CREATE EXTERNAL TABLE transactions_part_buck(
+. . . . . . . . . . . . . . . . . . . . . . .>   `time` TIMESTAMP,
+. . . . . . . . . . . . . . . . . . . . . . .>   hour_of_day INT,
+. . . . . . . . . . . . . . . . . . . . . . .>   sending_address VARCHAR(50),
+. . . . . . . . . . . . . . . . . . . . . . .>   receiving_address VARCHAR(50),
+. . . . . . . . . . . . . . . . . . . . . . .>   amount FLOAT,
+. . . . . . . . . . . . . . . . . . . . . . .>   location_region VARCHAR(15),
+. . . . . . . . . . . . . . . . . . . . . . .>   ip_prefix VARCHAR(7),
+. . . . . . . . . . . . . . . . . . . . . . .>   login_frequency INT,
+. . . . . . . . . . . . . . . . . . . . . . .>   session_duration INT,
+. . . . . . . . . . . . . . . . . . . . . . .>   purchase_pattern VARCHAR(10),
+. . . . . . . . . . . . . . . . . . . . . . .>   age_group VARCHAR(15),
+. . . . . . . . . . . . . . . . . . . . . . .>   risk_score FLOAT,
+. . . . . . . . . . . . . . . . . . . . . . .>   anomaly VARCHAR(15)
+. . . . . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . . . . .> PARTITIONED BY (transaction_type VARCHAR(10))
+. . . . . . . . . . . . . . . . . . . . . . .> CLUSTERED BY (age_group) into 5 buckets 
+. . . . . . . . . . . . . . . . . . . . . . .> STORED AS AVRO 
+. . . . . . . . . . . . . . . . . . . . . . .> LOCATION 'project/hive/warehouse/transactions_part_buck' 
+. . . . . . . . . . . . . . . . . . . . . . .> TBLPROPERTIES ('AVRO.COMPRESS'='SNAPPY');
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Insert data from unpartitioned table
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> INSERT INTO transactions_part_buck
+. . . . . . . . . . . . . . . . . . . . . . .> PARTITION (
+. . . . . . . . . . . . . . . . . . . . . . .>     transaction_type
+. . . . . . . . . . . . . . . . . . . . . . .> )
+. . . . . . . . . . . . . . . . . . . . . . .> SELECT `time`, hour_of_day, sending_address, receiving_address,
+. . . . . . . . . . . . . . . . . . . . . . .>     amount, location_region, ip_prefix, login_frequency,
+. . . . . . . . . . . . . . . . . . . . . . .>     session_duration, purchase_pattern, age_group,
+. . . . . . . . . . . . . . . . . . . . . . .>     risk_score, anomaly, transaction_type
+. . . . . . . . . . . . . . . . . . . . . . .> FROM transactions;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> -- Checking the content of table
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> SELECT * FROM transactions_part_buck WHERE transaction_type = 'sale' LIMIT 5;
++------------------------------+-------------------------------------+---------------------------------------------+---------------------------------------------+--------------------------------+-----------------------------------------+-----------------------------------+-----------------------------------------+------------------------------------------+------------------------------------------+-----------------------------------+------------------------------------+---------------------------------+------------------------------------------+
+| transactions_part_buck.time  | transactions_part_buck.hour_of_day  |   transactions_part_buck.sending_address    |  transactions_part_buck.receiving_address   | transactions_part_buck.amount  | transactions_part_buck.location_region  | transactions_part_buck.ip_prefix  | transactions_part_buck.login_frequency  | transactions_part_buck.session_duration  | transactions_part_buck.purchase_pattern  | transactions_part_buck.age_group  | transactions_part_buck.risk_score  | transactions_part_buck.anomaly  | transactions_part_buck.transaction_type  |
++------------------------------+-------------------------------------+---------------------------------------------+---------------------------------------------+--------------------------------+-----------------------------------------+-----------------------------------+-----------------------------------------+------------------------------------------+------------------------------------------+-----------------------------------+------------------------------------+---------------------------------+------------------------------------------+
+| 2022-12-01 19:19:54.0        | 22                                  | 0x0777bd72cd7022f19c613ecd4e91b90e6011ae9c  | 0xdcc20e844f3ac51754f981cb0707a00b83f10b02  | 665.4055                       | Europe                                  | 172.16                            | 8                                       | 114                                      | high_value                               | veteran                           | 52.5                               | low_risk                        | sale                                     |
+| 2022-02-10 07:39:27.0        | 10                                  | 0x95a91a4a20a4522edc7bd90efe20287e365b3637  | 0x90c61e65de8543a1e3daeda46d03fea897886666  | 762.8003                       | Africa                                  | 172.0                             | 6                                       | 153                                      | high_value                               | veteran                           | 62.5                               | moderate_risk                   | sale                                     |
+| 2022-10-18 19:35:26.0        | 22                                  | 0x6789a0b555a0618d337b94e500e35f043fd7261c  | 0x802f839bfee32aacc5174cbcd8033a8ef259be64  | 453.87137                      | South America                           | 172.0                             | 6                                       | 89                                       | high_value                               | veteran                           | 52.5                               | low_risk                        | sale                                     |
+| 2022-10-05 00:29:42.0        | 3                                   | 0x2f88347b18233677087626e559a5a69ac8a0ef58  | 0x410b3a8dbfbc3ed9e94e9aab57af5e3e85c750b5  | 1019.2269                      | North America                           | 192.0                             | 7                                       | 101                                      | high_value                               | veteran                           | 84.375                             | moderate_risk                   | sale                                     |
+| 2022-04-23 22:13:26.0        | 1                                   | 0x2a3fab88aa247b222f23a804d3f4b1437bb6cda7  | 0xeb1ace6be0f69e1b5bcc0127d3f0d338b5c7fc8a  | 233.25455                      | North America                           | 192.0                             | 6                                       | 134                                      | high_value                               | veteran                           | 67.5                               | moderate_risk                   | sale                                     |
++------------------------------+-------------------------------------+---------------------------------------------+---------------------------------------------+--------------------------------+-----------------------------------------+-----------------------------------+-----------------------------------------+------------------------------------------+------------------------------------------+-----------------------------------+------------------------------------+---------------------------------+------------------------------------------+
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> DROP TABLE transactions;
+0: jdbc:hive2://hadoop-03.uni.innopolis.ru:10> 
