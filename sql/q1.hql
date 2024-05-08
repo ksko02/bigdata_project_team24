@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS q1_results;
 
 CREATE EXTERNAL TABLE q1_results(
   hour_of_day INTEGER,
+  location_region VARCHAR(15),
   risk_score FLOAT
 )
 ROW FORMAT DELIMITED
@@ -13,7 +14,7 @@ location 'project/hive/warehouse/q1';
 SET hive.resultset.use.unique.column.names = false;
 
 INSERT INTO q1_results
-SELECT hour_of_day, risk_score
+SELECT hour_of_day, location_region, risk_score
 FROM transactions_part_buck;
 
 INSERT OVERWRITE DIRECTORY 'project/output/q1' 

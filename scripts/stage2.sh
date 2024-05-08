@@ -12,7 +12,7 @@ beeline -u jdbc:hive2://hadoop-03.uni.innopolis.ru:10001 -n team24 -p $password 
 
 # Create q1
 beeline -u jdbc:hive2://hadoop-03.uni.innopolis.ru:10001 -n team24 -p $password -f sql/q1.hql
-echo "hour_of_day,risk_score" > output/q1.csv
+echo "hour_of_day,location_region,risk_score" > output/q1.csv
 hdfs dfs -cat project/output/q1/* >> output/q1.csv
 
 # Create q2
@@ -32,5 +32,5 @@ hdfs dfs -cat project/output/q4/* >> output/q4.csv
 
 # Create q5
 beeline -u jdbc:hive2://hadoop-03.uni.innopolis.ru:10001 -n team24 -p $password -f sql/q5.hql
-echo "anomaly,amount" > output/q5.csv
+echo "amount,risk_score" > output/q5.csv
 hdfs dfs -cat project/output/q5/* >> output/q5.csv
