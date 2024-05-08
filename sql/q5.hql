@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS q5_results;
 
 CREATE EXTERNAL TABLE q5_results(
   anomaly VARCHAR(15),
-  amount FLOAT
+  amount FLOAT 
 )
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
