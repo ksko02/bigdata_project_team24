@@ -161,7 +161,7 @@ rmse_gbt = evaluator_rmse.evaluate(predictions_gbt)
 r2_gbt = evaluator_r2.evaluate(predictions_gbt)
 
 param_grid_gbt = grid.addGrid(model_gbt.maxDepth, [2, 4, 6]) \
-    .addGrid(model_gbt.maxBins, [16, 32, 64]) \
+    .addGrid(model_gbt.maxIter, [10, 20, 30]) \
     .build()
 
 cv_gbt = CrossValidator(estimator=gbt,
@@ -206,7 +206,7 @@ rmse_rf = evaluator_rmse.evaluate(predictions_rf)
 r2_rf = evaluator_r2.evaluate(predictions_rf)
 
 param_grid_rf = grid.addGrid(model_rf.maxDepth, [2, 4, 6]) \
-    .addGrid(model_rf.maxBins, [16, 32, 64]) \
+    .addGrid(model_rf.numTrees, [10, 20, 30]) \
     .build()
 
 cv_rf = CrossValidator(estimator=rf,
