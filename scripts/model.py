@@ -112,6 +112,8 @@ transformed_data = pipeline_model.transform(transactions)
 
 df = transformed_data['features', 'risk_score']
 
+df.cache()
+
 # Split the data into training and testing sets
 train_data, test_data = df.randomSplit([0.7, 0.3], seed=42)
 
